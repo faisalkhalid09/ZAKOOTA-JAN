@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -57,7 +54,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '98602016873',
     projectId: 'zakoota-e4451',
     storageBucket: 'zakoota-e4451.firebasestorage.app',
-    androidClientId: '98602016873-aor9st0b1uss7r8uv86dsn987vivun1n.apps.googleusercontent.com',
+    androidClientId:
+        '98602016873-aor9st0b1uss7r8uv86dsn987vivun1n.apps.googleusercontent.com',
     iosBundleId: 'com.example.myFlutterApp',
   );
 
@@ -67,11 +65,22 @@ class DefaultFirebaseOptions {
     messagingSenderId: '98602016873',
     projectId: 'zakoota-e4451',
     storageBucket: 'zakoota-e4451.firebasestorage.app',
-    androidClientId: '98602016873-aor9st0b1uss7r8uv86dsn987vivun1n.apps.googleusercontent.com',
+    androidClientId:
+        '98602016873-aor9st0b1uss7r8uv86dsn987vivun1n.apps.googleusercontent.com',
     iosBundleId: 'com.example.myFlutterApp',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyDkoUmgtRLYFOImTWfxAdznGWe5mdkydaw',
+    appId: '1:98602016873:web:674f973bdea5aeb1ff02f8',
+    messagingSenderId: '98602016873',
+    projectId: 'zakoota-e4451',
+    authDomain: 'zakoota-e4451.firebaseapp.com',
+    storageBucket: 'zakoota-e4451.firebasestorage.app',
+    measurementId: 'G-CRX66GK6B6',
+  );
+
+  static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDkoUmgtRLYFOImTWfxAdznGWe5mdkydaw',
     appId: '1:98602016873:web:674f973bdea5aeb1ff02f8',
     messagingSenderId: '98602016873',

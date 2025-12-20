@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:my_flutter_app/utils/app_colors.dart' as app_colors; // 🔹 Prefix added
+import 'package:zakoota/utils/app_colors.dart' as app_colors; // 🔹 Prefix added
 import '../widgets/custombuttons.dart';
 import 'roleselection_screen.dart';
 

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'client_home_screen.dart';
-import 'lawyer_home_screen.dart';
+import 'lawyer_main_screen.dart';
 import 'roleselection_screen.dart';
 import '../utils/app_colors.dart';
 
@@ -83,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       final Widget targetScreen = userRole == 'lawyer'
-          ? const LawyerHomeScreen()
+          ? const LawyerMainScreen()
           : const ClientHomeScreen();
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firestore package
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 import '../services/google_sign_in_service.dart';
 import 'login_screen.dart';
+import 'lawyer_profile_setup_screen.dart';
 
 class LawyerSignUpScreen extends StatefulWidget {
   const LawyerSignUpScreen({super.key});
@@ -19,14 +20,11 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
-  final TextEditingController addressController = TextEditingController();
-  final TextEditingController experienceController = TextEditingController();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final GoogleSignInService _googleSignInService = GoogleSignInService();
 
   bool _isLoading = false;
-  bool isLawyerSelected = true;
   bool _isPasswordVisible = false;
 
   @override
@@ -35,8 +33,6 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     emailController.dispose();
     passwordController.dispose();
     phoneController.dispose();
-    addressController.dispose();
-    experienceController.dispose();
     super.dispose();
   }
 
@@ -46,16 +42,14 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     });
   }
 
-  // 🚀 Google Sign-In Logic for Lawyers
+  // Google Sign-In Logic
   Future<void> _signInWithGoogle() async {
     setState(() => _isLoading = true);
 
     try {
-      // Sign in with Google
       final UserCredential? userCredential =
           await _googleSignInService.signInWithGoogle();
 
-      // If user cancelled the sign-in
       if (userCredential == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Google Sign-In cancelled.')),
@@ -68,12 +62,11 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
         throw Exception('Sign-in failed, user not created.');
       }
 
-      // Check if user already exists in Firestore
+      // Check if user already exists
       final docSnapshot =
-          await _firestore.collection('lawyers').doc(user.uid).get();
+          await _firestore.collection('users').doc(user.uid).get();
 
       if (docSnapshot.exists) {
-        // User already registered, redirect to login
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Account already exists. Redirecting to Login.')),
@@ -85,34 +78,45 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
         return;
       }
 
-      // Extract name from Google account
       final displayName = user.displayName ?? '';
 
-      // Save new lawyer data to Firestore with basic info
-      // Note: Phone, address, and experience can be added later via profile completion
-      await _firestore.collection('lawyers').doc(user.uid).set({
-        'uid': user.uid,
+      // Save to users collection
+      await _firestore.collection('users').doc(user.uid).set({
+        'name': displayName,
         'email': user.email ?? '',
-        'fullName': displayName,
-        'phone': '', // Can be updated later
-        'address': '', // Can be updated later
-        'experience': '', // Can be updated later
-        'userType': 'Lawyer',
-        'authProvider': 'Google',
+        'phone': '', // Will be added in profile setup if needed
+        'role': 'lawyer',
+        'isActive': true,
+        'isVerified': false,
         'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+        'profilePictureURL': '',
       });
 
-      print('Lawyer registered via Google: ${user.uid}');
+      // Create placeholder lawyerProfiles document
+      await _firestore.collection('lawyerProfiles').doc(user.uid).set({
+        'userId': user.uid,
+        'fullName': '',
+        'cnic': '',
+        'yearsOfExperience': 0,
+        'barCouncil': '',
+        'licenseNumber': '',
+        'licenseCardFrontURL': '',
+        'licenseCardBackURL': '',
+        'selfieWithLicenseURL': '',
+        'verificationStatus': 'pending',
+        'verifiedAt': null,
+        'verifiedBy': null,
+        'rejectionReason': null,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Google Sign-In successful! Redirecting to Login.')),
-      );
-
+      // Navigate to Profile Setup
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(
+            builder: (context) => LawyerProfileSetupScreen(userId: user.uid)),
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -123,7 +127,7 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     }
   }
 
-  // 🚀 Registration aur Firestore Data Saving Logic (Collection 'lawyers' updated)
+  // Email/Password Registration
   Future<void> _registerLawyer() async {
     setState(() => _isLoading = true);
 
@@ -131,12 +135,16 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
       final email = emailController.text.trim();
       final password = passwordController.text.trim();
       final fullName = nameController.text.trim();
+      final phone = phoneController.text.trim();
 
-      if (email.isEmpty || password.isEmpty || fullName.isEmpty) {
-        throw Exception("Name, Email, and Password are required.");
+      if (email.isEmpty ||
+          password.isEmpty ||
+          fullName.isEmpty ||
+          phone.isEmpty) {
+        throw Exception("Name, Email, Phone, and Password are required.");
       }
 
-      // 1. Firebase Auth Registration
+      // Firebase Auth Registration
       final userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: email,
@@ -148,30 +156,48 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
         throw Exception("Registration failed, user not created.");
       }
 
-      // 2. 🔑 Firestore Data Save: 'lawyers' collection mein
-      await _firestore.collection('lawyers').doc(user.uid).set({
-        'uid': user.uid,
+      // Save to users collection
+      await _firestore.collection('users').doc(user.uid).set({
+        'name': fullName,
         'email': email,
-        'fullName': fullName,
-        'phone': phoneController.text.trim(),
-        'address': addressController.text.trim(),
-        'experience': experienceController.text.trim(),
-        'userType': 'Lawyer', // Role define kiya gaya
+        'phone': phone,
+        'role': 'lawyer',
+        'isActive': true,
+        'isVerified': false,
         'createdAt': FieldValue.serverTimestamp(),
+        'lastLoginAt': FieldValue.serverTimestamp(),
+        'profilePictureURL': '',
       });
 
-      print(
-          'Lawyer signed up and data saved to lawyers collection: ${user.uid}');
+      // Create placeholder lawyerProfiles document
+      await _firestore.collection('lawyerProfiles').doc(user.uid).set({
+        'userId': user.uid,
+        'fullName': '',
+        'cnic': '',
+        'yearsOfExperience': 0,
+        'barCouncil': '',
+        'licenseNumber': '',
+        'licenseCardFrontURL': '',
+        'licenseCardBackURL': '',
+        'selfieWithLicenseURL': '',
+        'verificationStatus': 'pending',
+        'verifiedAt': null,
+        'verifiedBy': null,
+        'rejectionReason': null,
+        'createdAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Registration successful! Redirecting to Login.')),
+            content: Text('Account created! Complete your profile.')),
       );
 
-      // Navigator.pushReplacement for clean navigation
+      // Navigate to Profile Setup
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(
+            builder: (context) => LawyerProfileSetupScreen(userId: user.uid)),
       );
     } on FirebaseAuthException catch (e) {
       String message = 'Registration failed.';
@@ -191,36 +217,42 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     }
   }
 
-  // 🔹 Social button with image
-  Widget _buildSocialButton(String text, String imagePath) {
-    return Container(
-      width: double.infinity,
-      height: 50,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset(
-            imagePath,
-            height: 20,
-            width: 20,
-          ),
-          const SizedBox(width: 10),
-          Text(text, style: const TextStyle(fontSize: 16)),
-        ],
+  // Social button widget
+  Widget _buildSocialButton(
+      String text, String imagePath, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: double.infinity,
+        height: 50,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              imagePath,
+              height: 20,
+              width: 20,
+            ),
+            const SizedBox(width: 10),
+            Text(text, style: const TextStyle(fontSize: 16)),
+          ],
+        ),
       ),
     );
   }
 
-  // Text Field Widget (Same as provided)
-  Widget _buildTextField(
-      {required String hintText,
-      bool isPassword = false,
-      TextEditingController? controller}) {
+  // Text Field Widget
+  Widget _buildTextField({
+    required String hintText,
+    bool isPassword = false,
+    TextEditingController? controller,
+    TextInputType? keyboardType,
+  }) {
     final Color primaryBorderColor = Colors.grey.shade400;
 
     final OutlineInputBorder commonBorder = OutlineInputBorder(
@@ -231,6 +263,7 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     return TextField(
       controller: controller,
       obscureText: isPassword && !_isPasswordVisible,
+      keyboardType: keyboardType,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
@@ -256,31 +289,12 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
     );
   }
 
-  // Radio Option Widget (Same as provided)
-  Widget _buildRadioOption(
-      String label, bool selected, void Function(bool?)? onChanged) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Radio<bool>(
-          value: true,
-          groupValue: selected,
-          onChanged: label == 'Lawyer' ? onChanged : null,
-          activeColor: primaryMaroon,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-        Text(label, style: const TextStyle(fontSize: 14)),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Sign Up as Lawyer',
-            style: TextStyle(color: Colors.black)),
+        title: const Text('Sign Up', style: TextStyle(color: Colors.black)),
         backgroundColor: AppColors.backgroundColor,
         elevation: 0,
         leading: IconButton(
@@ -293,33 +307,36 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            /// 🔹 ZAKOOTA LOGO IMAGE
+            // ZAKOOTA LOGO
             SizedBox(
-              height: 200,
-              width: 200,
+              height: 150,
+              width: 150,
               child: Image.asset(
                 'assets/intro4.png',
                 fit: BoxFit.contain,
               ),
             ),
-            const Text('Create your lawyer account',
-                style: TextStyle(fontSize: 18, color: Colors.black54)),
+            const SizedBox(height: 20),
+            const Text(
+              'Create your lawyer account',
+              style: TextStyle(fontSize: 18, color: Colors.black54),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 30),
 
-            /// 🔹 GOOGLE BUTTON
-            GestureDetector(
-              onTap: _isLoading ? null : _signInWithGoogle,
-              child: _buildSocialButton(
-                'Continue with Google',
-                'assets/g.png',
-              ),
+            // GOOGLE BUTTON
+            _buildSocialButton(
+              'Sign up with Google',
+              'assets/g.png',
+              _isLoading ? null : _signInWithGoogle,
             ),
             const SizedBox(height: 15),
 
-            /// 🔹 FACEBOOK BUTTON
+            // FACEBOOK BUTTON
             _buildSocialButton(
-              'Continue with Facebook',
+              'Sign up with Facebook',
               'assets/f.png',
+              null, // Not implemented yet
             ),
             const SizedBox(height: 20),
             const Text('or', style: TextStyle(color: Colors.black54)),
@@ -328,82 +345,26 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
             // Form Fields
             _buildTextField(hintText: 'Full Name', controller: nameController),
             const SizedBox(height: 15),
-            _buildTextField(hintText: 'Email', controller: emailController),
-            const SizedBox(height: 15),
             _buildTextField(
-                hintText: 'Password',
-                isPassword: true,
-                controller: passwordController),
-            const SizedBox(height: 15),
-            _buildTextField(
-                hintText: 'Phone number', controller: phoneController),
-            const SizedBox(height: 15),
-            _buildTextField(hintText: 'Address', controller: addressController),
-            const SizedBox(height: 15),
-            _buildTextField(
-                hintText: 'Years of Experience',
-                controller: experienceController),
-            const SizedBox(height: 20),
-
-            // Step 1: Upload Documents
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Step 1:  Upload Documents',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Role Selection
-            const Align(
-                alignment: Alignment.centerLeft,
-                child: Text('Select your role:',
-                    style: TextStyle(fontSize: 14, color: Colors.black54))),
-            Row(
-              children: [
-                _buildRadioOption('Client', !isLawyerSelected, null),
-                const SizedBox(width: 20),
-                _buildRadioOption('Lawyer', isLawyerSelected,
-                    (v) => setState(() => isLawyerSelected = true)),
-              ],
+              hintText: 'Email',
+              controller: emailController,
+              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 15),
-
-            // Document Upload Placeholder
             _buildTextField(
-                hintText: 'Upload Your Bar Council License (Optional)',
-                controller: null),
-
+              hintText: 'Phone Number',
+              controller: phoneController,
+              keyboardType: TextInputType.phone,
+            ),
+            const SizedBox(height: 15),
+            _buildTextField(
+              hintText: 'Password',
+              isPassword: true,
+              controller: passwordController,
+            ),
             const SizedBox(height: 30),
 
-            // Bottom Section
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Join Zakoota',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: primaryMaroon),
-                ),
-                const SizedBox(height: 8),
-                const Text(
-                  'By continuing, you agree to Zakoota’s terms of use and acknowledge our privacy policy.',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Make sure your bar council license details are valid and up to date.',
-                  style: TextStyle(fontSize: 14, color: Colors.black54),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            // Register Button
+            // Sign Up Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -417,11 +378,36 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
                 ),
                 child: _isLoading
                     ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Register and continue',
-                        style: TextStyle(fontSize: 18)),
+                    : const Text('Sign Up', style: TextStyle(fontSize: 18)),
               ),
             ),
             const SizedBox(height: 20),
+
+            // Login Link
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text('Already have an account?',
+                    style: TextStyle(fontSize: 14, color: Colors.black54)),
+                const SizedBox(width: 5),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const LoginScreen()),
+                    );
+                  },
+                  child: Text(
+                    'Login',
+                    style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: primaryMaroon),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),

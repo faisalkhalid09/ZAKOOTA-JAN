@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'introscreen1.dart';
 import 'login_screen.dart';
 import 'client_home_screen.dart';
-import 'lawyer_home_screen.dart';
+import 'lawyer_main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -71,7 +71,7 @@ class _SplashScreenState extends State<SplashScreen> {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const LawyerHomeScreen()),
+          MaterialPageRoute(builder: (_) => const LawyerMainScreen()),
         );
         return;
       }
