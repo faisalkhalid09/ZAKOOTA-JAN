@@ -16,20 +16,24 @@ class MyCasesScreen extends StatefulWidget {
 }
 
 class Case {
-  final String id;
+  final String docId; // Firestore Document ID
+  final String id; // Case Number (Display ID)
   final String type;
   final String lawyer;
   final String court;
   final String date;
   final String status; // 'Ongoing', 'Pending', 'Closed'
+  final String description; // Case Description
 
   Case({
+    required this.docId,
     required this.id,
     required this.type,
     required this.lawyer,
     required this.court,
     required this.date,
     required this.status,
+    required this.description,
   });
 }
 
@@ -37,49 +41,6 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
   final Color primaryMaroon = AppColors.primaryColor;
   String _selectedStatus = 'Ongoing'; // Default selected tab
   String _searchQuery = '';
-
-  // 🔑 Dummy Data (Screenshot ke mutabiq)
-  final List<Case> allCases = [
-    Case(
-        id: '1428',
-        type: 'Property Dispute - Case #1428',
-        lawyer: 'Ayesha Khan',
-        court: 'Lahore High Court',
-        date: 'Nov 25, 2025 - 10:03 AM',
-        status: 'Ongoing'),
-    Case(
-        id: '1922',
-        type: 'Divorce Case - Case #1922',
-        lawyer: 'Ayesha Khan',
-        court: 'Civil Court',
-        date: 'Nov 08, 2025 - 10:00 AM',
-        status: 'Pending'),
-    Case(
-        id: '1389',
-        type: 'Contract Dispute - Case #1389',
-        lawyer: 'Ayesha Khan',
-        court: 'Supreme Court',
-        date: 'Oct 15, 2025 - 3:00 PM',
-        status: 'Closed'),
-    Case(
-        id: '1423',
-        type: 'Property Dispute - Case #1423',
-        lawyer: 'Ayesha Khan',
-        court: 'Lahore High Court',
-        date: 'Dec 01, 2025 - 11:30 AM',
-        status: 'Ongoing'),
-  ];
-
-  // 🔑 Filtering Logic
-  List<Case> get filteredCases {
-    return allCases.where((caseItem) {
-      final matchesStatus = caseItem.status == _selectedStatus;
-      final matchesQuery =
-          caseItem.type.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              caseItem.id.contains(_searchQuery);
-      return matchesStatus && matchesQuery;
-    }).toList();
-  }
 
   // 🔑 Status Color Getter
   Color _getStatusColor(String status) {
@@ -92,6 +53,28 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
         return const Color(0xFFFFC107); // Yellow shade
       default:
         return Colors.grey;
+    }
+  }
+
+  // 🔑 Update Case Status in Firestore
+  Future<void> _updateCaseStatus(String docId, String newStatus) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('cases')
+          .doc(docId)
+          .update({'status': newStatus});
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Case moved to $newStatus')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating status: $e')),
+        );
+      }
     }
   }
 
@@ -119,23 +102,45 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                const SizedBox(width: 10),
-
-                // Status Badge
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15), // Light background
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  child: Text(
-                    caseItem.status,
-                    style: TextStyle(
-                        color: statusColor,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
-                  ),
+                
+                // Status Actions (Menu) & Badge
+                Row(
+                  children: [
+                    // Status Badge
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.15), // Light background
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        caseItem.status,
+                        style: TextStyle(
+                            color: statusColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    
+                    // 3-Dot Menu for Status Change
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.grey),
+                      onSelected: (String newStatus) {
+                        _updateCaseStatus(caseItem.docId, newStatus);
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return {'Ongoing', 'Pending', 'Closed'}
+                            .where((status) => status != caseItem.status)
+                            .map((String status) {
+                          return PopupMenuItem<String>(
+                            value: status,
+                            child: Text('Mark as $status'),
+                          );
+                        }).toList();
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -150,7 +155,6 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
             Text('Lawyer: ${caseItem.lawyer}',
                 style: const TextStyle(color: Colors.black87, fontSize: 14)),
 
-            // Note: Screenshot mein Next Hearing aur Court details ek hi card mein hain
             // Next Hearing Detail
             Text('Next Hearing: ${caseItem.date}',
                 style: const TextStyle(color: Colors.black87, fontSize: 14)),
@@ -173,12 +177,20 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                 height: 40,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Navigate to Case Details Screen
+                    // Navigate to Case Details Screen with all data
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            CaseDetailsScreen(caseId: caseItem.id),
+                        builder: (context) => CaseDetailsScreen(
+                          docId: caseItem.docId,
+                          caseNumber: caseItem.id,
+                          type: caseItem.type,
+                          lawyer: caseItem.lawyer,
+                          court: caseItem.court,
+                          date: caseItem.date,
+                          status: caseItem.status,
+                          description: caseItem.description,
+                        ),
                       ),
                     );
                   },
@@ -319,12 +331,14 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                 final cases = snapshot.data!.docs.map((doc) {
                   final data = doc.data() as Map<String, dynamic>;
                   return Case(
+                    docId: doc.id, // Capture Firestore Doc ID
                     id: data['caseNumber'] ?? 'Unknown',
                     type: data['caseType'] ?? 'General',
                     lawyer: data['lawyer'] ?? 'None',
                     court: data['court'] ?? 'Unknown',
                     date: data['hearingDate'] ?? 'No Date',
                     status: data['status'] ?? 'Ongoing',
+                    description: data['description'] ?? '', // Added Description
                   );
                 }).where((caseItem) {
                   // Apply Filters
