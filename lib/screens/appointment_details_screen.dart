@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
 
-class CaseDetailsScreen extends StatelessWidget {
+class AppointmentDetailsScreen extends StatelessWidget {
   final String docId;
-  final String caseNumber;
-  final String type;
   final String lawyer;
-  final String court;
   final String date;
+  final String time;
+  final String type;
+  final String venue;
   final String status;
-  final String description;
+  final String purpose;
 
-  const CaseDetailsScreen({
+  const AppointmentDetailsScreen({
     super.key,
     required this.docId,
-    required this.caseNumber,
-    required this.type,
     required this.lawyer,
-    required this.court,
     required this.date,
+    required this.time,
+    required this.type,
+    required this.venue,
     required this.status,
-    required this.description,
+    required this.purpose,
   });
 
   @override
@@ -29,12 +29,12 @@ class CaseDetailsScreen extends StatelessWidget {
 
     Color getStatusColor(String status) {
       switch (status) {
-        case 'Ongoing':
+        case 'Upcoming':
           return const Color(0xFF4CAF50);
-        case 'Closed':
+        case 'Completed':
+          return const Color(0xFF1976D2);
+        case 'Cancelled':
           return const Color(0xFFF44336);
-        case 'Pending':
-          return const Color(0xFFFFC107);
         default:
           return Colors.grey;
       }
@@ -43,7 +43,7 @@ class CaseDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Case Details', style: TextStyle(color: Colors.white)),
+        title: const Text('Appointment Details', style: TextStyle(color: Colors.white)),
         backgroundColor: primaryMaroon,
         elevation: 0,
         leading: IconButton(
@@ -56,7 +56,7 @@ class CaseDetailsScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header Card with Case Info
+            // Header Card with Lawyer Info
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -96,33 +96,20 @@ class CaseDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 5),
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                              decoration: BoxDecoration(
-                                color: getStatusColor(status).withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text(
-                                status,
-                                style: TextStyle(
-                                  color: getStatusColor(status),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                ),
-                              ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: getStatusColor(status).withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            status,
+                            style: TextStyle(
+                              color: getStatusColor(status),
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
                             ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'Case #$caseNumber',
-                              style: const TextStyle(
-                                color: Colors.grey,
-                                fontSize: 13,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
                     ),
@@ -139,15 +126,16 @@ class CaseDetailsScreen extends StatelessWidget {
             const SizedBox(height: 15),
 
             // Details List
-            _buildDetailRow(Icons.gavel, 'Case Type', type),
-            _buildDetailRow(Icons.calendar_today, 'Next Hearing', date),
-            _buildDetailRow(Icons.balance, 'Court', court),
+            _buildDetailRow(Icons.calendar_today, 'Date', date),
+            _buildDetailRow(Icons.access_time, 'Time', time),
+            _buildDetailRow(Icons.videocam, 'Type', type),
+            _buildDetailRow(Icons.location_on, 'Venue / Platform', venue.isEmpty ? 'N/A' : venue),
             
             const SizedBox(height: 25),
             
-            // Description
+            // Purpose / Description
             const Text(
-              'Case Description',
+              'Purpose / Case Details',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
@@ -160,7 +148,7 @@ class CaseDetailsScreen extends StatelessWidget {
                 border: Border.all(color: Colors.grey.shade200),
               ),
               child: Text(
-                description.isEmpty ? 'No description available for this case.' : description,
+                purpose.isEmpty ? 'No additional details provided.' : purpose,
                 style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.4),
               ),
             ),
