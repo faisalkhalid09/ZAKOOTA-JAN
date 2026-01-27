@@ -14,77 +14,13 @@
       },
       "oauth_client": [
         {
-          "client_id": "98602016873-f9dgjs61meo8huqvfa6kv0b3ornarhga.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBHlqRNMF4bvHDYLY2RyJ_gYVISYfMbyes"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "98602016873-f9dgjs61meo8huqvfa6kv0b3ornarhga.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "98602016873-97lqda2csvbcnpq2s82jfssd43bj5e78.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.tempApp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:98602016873:android:7eccadd45dcb87d5ff02f8",
-        "android_client_info": {
-          "package_name": "com.example.zakootaform"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "98602016873-f9dgjs61meo8huqvfa6kv0b3ornarhga.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyBHlqRNMF4bvHDYLY2RyJ_gYVISYfMbyes"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "98602016873-f9dgjs61meo8huqvfa6kv0b3ornarhga.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "98602016873-97lqda2csvbcnpq2s82jfssd43bj5e78.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.tempApp"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:98602016873:android:50ddb582e5b705f7ff02f8",
-        "android_client_info": {
-          "package_name": "com.example.zakootalast"
-        }
-      },
-      "oauth_client": [
+          "client_id": "98602016873-c3ejht1p11oiev5tl8t9but8rmbf14db.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.my_flutter_app",
+            "certificate_hash": "b67af8020a74a0c026e95bd59648ca4bed2d7adf"
+          }
+        },
         {
           "client_id": "98602016873-f9dgjs61meo8huqvfa6kv0b3ornarhga.apps.googleusercontent.com",
           "client_type": 3

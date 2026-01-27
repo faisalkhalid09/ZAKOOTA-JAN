@@ -118,9 +118,42 @@ class _LawyerSignUpScreenState extends State<LawyerSignUpScreen> {
         MaterialPageRoute(
             builder: (context) => LawyerProfileSetupScreen(userId: user.uid)),
       );
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      String message = 'Google Sign-In failed.';
+      if (e.code == 'account-exists-with-different-credential') {
+        message =
+            'An account already exists with this email using a different sign-in method.';
+      } else if (e.code == 'invalid-credential') {
+        message = 'Invalid credentials. Please try again.';
+      } else if (e.code == 'operation-not-allowed') {
+        message = 'Google Sign-In is not enabled. Please contact support.';
+      } else if (e.code == 'user-disabled') {
+        message = 'This account has been disabled.';
+      }
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Google Sign-In failed: $e')),
+        SnackBar(content: Text(message)),
+      );
+    } catch (e) {
+      String errorMessage = 'Google Sign-In failed: ${e.toString()}';
+
+      // Check for common Google Sign-In configuration errors
+      if (e.toString().contains('DEVELOPER_ERROR') ||
+          e.toString().contains('ApiException') ||
+          e.toString().contains('10:')) {
+        errorMessage = 'Google Sign-In configuration error. Please ensure:\n'
+            '1. SHA-1 certificate is added to Firebase Console\n'
+            '2. google-services.json is up to date\n'
+            '3. Google Sign-In is enabled in Firebase Authentication';
+      } else if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(errorMessage),
+          duration: const Duration(seconds: 5),
+        ),
       );
     } finally {
       setState(() => _isLoading = false);
