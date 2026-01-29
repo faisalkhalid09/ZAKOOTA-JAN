@@ -34,6 +34,7 @@ class _LawyerGigsScreenState extends State<LawyerGigsScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'lawyer_gigs_fab',
         onPressed: () {
           Navigator.push(
             context,

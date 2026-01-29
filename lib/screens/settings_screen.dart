@@ -26,7 +26,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           leading: Icon(icon, color: primaryMaroon, size: 20),
           title: Text(title, style: const TextStyle(fontSize: 15)),
           trailing: trailingWidget ??
@@ -54,7 +55,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.normal)),
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 15, fontWeight: FontWeight.normal)),
           const SizedBox(height: 5),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -108,20 +111,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           children: [
             // Profile Area for quick navigation to Edit Profile
             ListTile(
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               leading: const CircleAvatar(
                 radius: 30,
-                backgroundImage: AssetImage('assets/profile_placeholder.png'),
                 backgroundColor: Colors.grey,
+                child: Icon(Icons.person, color: Colors.white, size: 24),
               ),
-              title: const Text('Amal aml', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              subtitle: const Text('@amalaml', style: TextStyle(color: Colors.grey, fontSize: 13)),
-              trailing: Icon(Icons.arrow_forward_ios, color: primaryMaroon, size: 16),
+              title: const Text('Amal aml',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              subtitle: const Text('@amalaml',
+                  style: TextStyle(color: Colors.grey, fontSize: 13)),
+              trailing:
+                  Icon(Icons.arrow_forward_ios, color: primaryMaroon, size: 16),
               onTap: () {
                 // Navigates to Edit Profile when clicking on the profile area
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const EditProfileScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen()),
                 );
               },
             ),
@@ -144,7 +152,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Select Country/Region
             _buildDropdownField(
               label: 'Select Country/ Region',
-              icon: Icons.location_on_outlined, // Using location icon as per image
+              icon: Icons
+                  .location_on_outlined, // Using location icon as per image
               currentValue: _selectedCountry!,
               items: const ['Pakistan', 'USA', 'UK'],
               onChanged: (newValue) {
@@ -158,7 +167,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Lawyer Preference Header
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 5, bottom: 5),
-              child: Text('Lawyer Preference', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryMaroon)),
+              child: Text('Lawyer Preference',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryMaroon)),
             ),
             _buildOptionTile(
               icon: Icons.balance,
@@ -175,7 +188,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Privacy & Security Header
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 5, bottom: 5),
-              child: Text('Privacy & Security', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryMaroon)),
+              child: Text('Privacy & Security',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryMaroon)),
             ),
             _buildOptionTile(
               icon: Icons.lock_outline,
@@ -192,7 +209,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Display & Theme Header
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 5, bottom: 5),
-              child: Text('Display & Theme', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryMaroon)),
+              child: Text('Display & Theme',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryMaroon)),
             ),
             _buildOptionTile(
               icon: Icons.lock_outline, // Placeholder icon
@@ -202,7 +223,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (val) {
                   // TODO: Implement Theme toggle logic
                 },
-                activeColor: primaryMaroon,
+                activeThumbColor: primaryMaroon,
               ),
               onTap: () {},
             ),
@@ -211,7 +232,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // Notifications Header
             Padding(
               padding: const EdgeInsets.only(left: 16.0, top: 5, bottom: 5),
-              child: Text('Notifications', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryMaroon)),
+              child: Text('Notifications',
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: primaryMaroon)),
             ),
             _buildOptionTile(
               icon: Icons.calendar_today_outlined, // Placeholder icon
@@ -221,7 +246,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (val) {
                   // TODO: Implement switch logic
                 },
-                activeColor: primaryMaroon,
+                activeThumbColor: primaryMaroon,
               ),
               onTap: () {},
             ),
@@ -233,7 +258,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onChanged: (val) {
                   // TODO: Implement switch logic
                 },
-                activeColor: primaryMaroon,
+                activeThumbColor: primaryMaroon,
               ),
               onTap: () {},
             ),

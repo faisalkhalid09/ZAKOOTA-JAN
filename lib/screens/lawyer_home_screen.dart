@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 import 'withdraw_screen.dart';
 import 'create_service_screen.dart';
 import 'requests_screen.dart';
 import 'schedule_screen.dart';
-import 'lawyer_main_screen.dart';
 
 class LawyerHomeScreen extends StatefulWidget {
   const LawyerHomeScreen({super.key});
@@ -54,18 +51,13 @@ class _LawyerHomeScreenState extends State<LawyerHomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.maroonDark, AppColors.maroonPrimary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.maroonPrimary.withOpacity(0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
+        color: AppColors.white,
+        border: Border(
+          bottom: BorderSide(
+            color: AppColors.gray200,
+            width: 1,
           ),
-        ],
+        ),
       ),
       child: Row(
         children: [
@@ -73,7 +65,7 @@ class _LawyerHomeScreenState extends State<LawyerHomeScreen> {
           Container(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(color: AppColors.white, width: 2),
+              border: Border.all(color: AppColors.maroonPrimary, width: 2),
             ),
             child: CircleAvatar(
               radius: 22,
@@ -93,7 +85,7 @@ class _LawyerHomeScreenState extends State<LawyerHomeScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.white,
+                    color: AppColors.textColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -101,7 +93,7 @@ class _LawyerHomeScreenState extends State<LawyerHomeScreen> {
                   'Criminal & Family Law',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.white.withOpacity(0.85),
+                    color: AppColors.gray600,
                   ),
                 ),
               ],
@@ -147,7 +139,7 @@ class _LawyerHomeScreenState extends State<LawyerHomeScreen> {
             children: [
               IconButton(
                 icon: const Icon(Icons.notifications_outlined,
-                    color: AppColors.white, size: 22),
+                    color: AppColors.gray800, size: 22),
                 onPressed: () {},
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),

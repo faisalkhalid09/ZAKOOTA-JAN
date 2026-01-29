@@ -1,8 +1,6 @@
 // Path: screens/client_home_screen.dart (Settings Icon Linking Fix)
 
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 
 import 'my_cases_screen.dart';
@@ -12,7 +10,6 @@ import 'messages_screen.dart';
 import 'notifications_screen.dart';
 import 'payment_screen.dart';
 import '../widgets/app_nav_bar.dart';
-import 'profile_screen.dart';
 
 class ClientHomeScreen extends StatelessWidget {
   const ClientHomeScreen({super.key});
@@ -85,204 +82,124 @@ class ClientHomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: 90,
-        backgroundColor: primaryMaroon,
-        elevation: 0,
-        flexibleSpace: Container(
-          padding:
-              const EdgeInsets.only(top: 40, left: 16, right: 16, bottom: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Material(
+      color: backgroundColor,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              StreamBuilder<DocumentSnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('clients')
-                    .doc(FirebaseAuth.instance.currentUser?.uid)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(color: Colors.white);
-                  }
-                  
-                  // Default values
-                  String displayName = 'Client Name';
-                  String? profileImage;
-                  
-                  if (snapshot.hasData && snapshot.data!.exists) {
-                    final data = snapshot.data!.data() as Map<String, dynamic>;
-                    displayName = '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'.trim();
-                    if (displayName.isEmpty) displayName = 'Client';
-                    profileImage = data['profileImageUrl'];
-                  }
-
-                  return Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 25,
-                        backgroundImage: profileImage != null && profileImage.isNotEmpty
-                            ? NetworkImage(profileImage) as ImageProvider
-                            : const AssetImage('assets/profile_placeholder.png'),
-                        backgroundColor: Colors.white,
-                      ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Welcome back,',
-                            style: TextStyle(fontSize: 14, color: Colors.white70),
-                          ),
-                          Text(
-                            displayName,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                },
+              Text(
+                'Explore Popular Services',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800,
+                ),
               ),
-              IconButton(
-                icon: const Icon(Icons.settings, color: Colors.white, size: 24),
-                onPressed: () {
-                  Navigator.push(
+              const SizedBox(height: 15),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 2.2,
+                children: [
+                  _buildDashboardTile(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfileScreen()),
-                  );
-                },
+                    'My Cases',
+                    Icons.balance,
+                    const MyCasesScreen(),
+                    'View case details',
+                  ),
+                  _buildDashboardTile(
+                    context,
+                    'Appointments',
+                    Icons.calendar_month,
+                    const MyAppointmentsScreen(),
+                    'Check upcoming hearings',
+                  ),
+                  _buildDashboardTile(
+                    context,
+                    'Messages',
+                    Icons.chat_bubble_outline,
+                    const MessagesScreen(),
+                    'Chat with lawyer',
+                  ),
+                  _buildDashboardTile(
+                    context,
+                    'Documents',
+                    Icons.description_outlined,
+                    const DocumentsScreen(),
+                    'Upload or view files',
+                  ),
+                  _buildDashboardTile(
+                    context,
+                    'Notifications',
+                    Icons.notifications_outlined,
+                    const NotificationsScreen(),
+                    'Case updates',
+                  ),
+                  _buildDashboardTile(
+                    context,
+                    'Payments',
+                    Icons.receipt_long,
+                    const PaymentsScreen(),
+                    'Invoices & receipts',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              Text(
+                'Upcoming Appointment',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _buildUpcomingAppointmentCard(
+                context,
+                lawyerName: 'Lawyer Name',
+                time: 'Tomorrow, 10:00 AM',
+                count: 3,
+              ),
+              const SizedBox(height: 30),
+              Text(
+                'Recent Messages',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _buildRecentMessageCard(
+                lawyerName: 'Lawyer Name',
+                message: 'Thanks for providing the documents.',
+                time: 'Yesterday',
+              ),
+              const SizedBox(height: 30),
+              Text(
+                'Recent Documents',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade800,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _buildDocumentCard(
+                fileName: 'Evidence.pdf',
+                date: 'April 20',
+                color: primaryMaroon,
               ),
             ],
           ),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Explore Popular Services',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 15),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 15,
-              mainAxisSpacing: 15,
-              childAspectRatio: 2.2,
-              children: [
-                _buildDashboardTile(
-                  context,
-                  'My Cases',
-                  Icons.balance,
-                  const MyCasesScreen(),
-                  'View case details',
-                ),
-                _buildDashboardTile(
-                  context,
-                  'Appointments',
-                  Icons.calendar_month,
-                  const MyAppointmentsScreen(),
-                  'Check upcoming hearings',
-                ),
-                _buildDashboardTile(
-                  context,
-                  'Messages',
-                  Icons.chat_bubble_outline,
-                  const MessagesScreen(),
-                  'Chat with lawyer',
-                ),
-                _buildDashboardTile(
-                  context,
-                  'Documents',
-                  Icons.description_outlined,
-                  const DocumentsScreen(),
-                  'Upload or view files',
-                ),
-                _buildDashboardTile(
-                  context,
-                  'Notifications',
-                  Icons.notifications_outlined,
-                  const NotificationsScreen(),
-                  'Case updates',
-                ),
-                _buildDashboardTile(
-                  context,
-                  'Payments',
-                  Icons.receipt_long,
-                  const PaymentsScreen(),
-                  'Invoices & receipts',
-                ),
-              ],
-            ),
-            const SizedBox(height: 30),
-            Text(
-              'Upcoming Appointment',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildUpcomingAppointmentCard(
-              context,
-              lawyerName: 'Lawyer Name',
-              time: 'Tomorrow, 10:00 AM',
-              count: 3,
-            ),
-            const SizedBox(height: 30),
-            Text(
-              'Recent Messages',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildRecentMessageCard(
-              lawyerName: 'Lawyer Name',
-              message: 'Thanks for providing the documents.',
-              time: 'Yesterday',
-            ),
-            const SizedBox(height: 30),
-            Text(
-              'Recent Documents',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-            ),
-            const SizedBox(height: 10),
-            _buildDocumentCard(
-              fileName: 'Evidence.pdf',
-              date: 'April 20',
-              color: primaryMaroon,
-            ),
-          ],
-        ),
-      ),
-      bottomNavigationBar: AppNavBar(
-        currentIndex: 0,
-        context: context,
       ),
     );
   }
@@ -305,8 +222,8 @@ class ClientHomeScreen extends StatelessWidget {
               children: [
                 const CircleAvatar(
                   radius: 20,
-                  backgroundImage: AssetImage('assets/lawyer_placeholder.png'),
                   backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, color: Colors.white, size: 16),
                 ),
                 const SizedBox(width: 10),
                 Column(

@@ -43,7 +43,8 @@ class AppointmentDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Appointment Details', style: TextStyle(color: Colors.white)),
+        title: const Text('Appointment Details',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: primaryMaroon,
         elevation: 0,
         leading: IconButton(
@@ -75,8 +76,8 @@ class AppointmentDetailsScreen extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 35,
-                    backgroundImage: AssetImage('assets/profile_placeholder.png'),
                     backgroundColor: Colors.grey,
+                    child: Icon(Icons.person, color: Colors.white, size: 28),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -97,7 +98,8 @@ class AppointmentDetailsScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 5),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 5),
                           decoration: BoxDecoration(
                             color: getStatusColor(status).withOpacity(0.15),
                             borderRadius: BorderRadius.circular(5),
@@ -129,10 +131,11 @@ class AppointmentDetailsScreen extends StatelessWidget {
             _buildDetailRow(Icons.calendar_today, 'Date', date),
             _buildDetailRow(Icons.access_time, 'Time', time),
             _buildDetailRow(Icons.videocam, 'Type', type),
-            _buildDetailRow(Icons.location_on, 'Venue / Platform', venue.isEmpty ? 'N/A' : venue),
-            
+            _buildDetailRow(Icons.location_on, 'Venue / Platform',
+                venue.isEmpty ? 'N/A' : venue),
+
             const SizedBox(height: 25),
-            
+
             // Purpose / Description
             const Text(
               'Purpose / Case Details',
@@ -149,7 +152,8 @@ class AppointmentDetailsScreen extends StatelessWidget {
               ),
               child: Text(
                 purpose.isEmpty ? 'No additional details provided.' : purpose,
-                style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.4),
+                style: const TextStyle(
+                    fontSize: 15, color: Colors.black87, height: 1.4),
               ),
             ),
           ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-import 'client_home_screen.dart';
+import 'client_main_screen.dart';
 import 'lawyer_main_screen.dart';
 import 'roleselection_screen.dart';
 import '../utils/app_colors.dart';
@@ -84,7 +84,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final Widget targetScreen = userRole == 'lawyer'
           ? const LawyerMainScreen()
-          : const ClientHomeScreen();
+          : const ClientMainScreen();
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login successful as $userRole')),

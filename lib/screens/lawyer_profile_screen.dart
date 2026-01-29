@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/app_colors.dart';
+import '../services/session_management_service.dart';
+import 'login_screen.dart';
 
 class LawyerProfileScreen extends StatefulWidget {
   const LawyerProfileScreen({super.key});
@@ -697,13 +698,71 @@ class _LawyerProfileScreenState extends State<LawyerProfileScreen> {
           _buildMenuItem(Icons.privacy_tip_outlined, 'Privacy Policy', () {}),
           _buildMenuItem(Icons.info_outline, 'Terms & Conditions', () {}),
           _buildMenuItem(Icons.info_outline, 'About App', () {}),
-          _buildMenuItem(Icons.logout, 'Logout', () async {
-            await FirebaseAuth.instance.signOut();
-            // TODO: Navigate to login screen
-          }, isDestructive: true),
+          _buildMenuItem(Icons.logout, 'Logout', () => _handleLogout(context),
+              isDestructive: true),
         ],
       ),
     );
+  }
+
+  // 🔑 Logout Handler
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 20),
+                  const Text('Logging out...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      // Use SessionManagementService for logout
+      final sessionService = SessionManagementService();
+      final logoutSuccess = await sessionService.logout();
+
+      if (context.mounted) {
+        // Dismiss loading dialog
+        Navigator.pop(context);
+
+        if (logoutSuccess) {
+          // Navigate to LoginScreen and clear navigation stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logout failed. Please try again.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        // Dismiss loading dialog if open
+        Navigator.pop(context);
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logout failed: $e')),
+        );
+      }
+      debugPrint('Logout error: $e');
+    }
   }
 
   Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap,

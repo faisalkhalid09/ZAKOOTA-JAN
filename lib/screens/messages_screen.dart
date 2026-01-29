@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import '../utils/app_colors.dart';
-import '../widgets/app_nav_bar.dart';
 import 'chat_screen.dart';
 
 // 🔑 Data Structure
@@ -110,8 +109,8 @@ class _MessagesScreenState extends State<MessagesScreen> {
             // Left: Profile Picture
             const CircleAvatar(
               radius: 25,
-              backgroundImage: AssetImage('assets/profile_placeholder.png'),
               backgroundColor: Colors.grey,
+              child: Icon(Icons.person, color: Colors.white, size: 18),
             ),
             const SizedBox(width: 15),
 
@@ -248,6 +247,7 @@ class _MessagesScreenState extends State<MessagesScreen> {
 
       // 3. Floating Action Button
       floatingActionButton: FloatingActionButton(
+        heroTag: 'messages_fab',
         onPressed: () {
           // TODO: Start New Chat
         },
@@ -257,9 +257,6 @@ class _MessagesScreenState extends State<MessagesScreen> {
         ),
         child: const Icon(Icons.add, color: Colors.white, size: 30),
       ),
-
-      // 4. Bottom Navigation Bar
-      bottomNavigationBar: AppNavBar(currentIndex: 3, context: context),
     );
   }
 }

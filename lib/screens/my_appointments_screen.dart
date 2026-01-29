@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../utils/app_colors.dart';
-import '../widgets/app_nav_bar.dart';
 import 'add_appointment_screen.dart';
 import 'appointment_details_screen.dart';
 
@@ -100,8 +99,8 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
               children: [
                 const CircleAvatar(
                   radius: 25,
-                  backgroundImage: AssetImage('assets/profile_placeholder.png'),
                   backgroundColor: Colors.grey,
+                  child: Icon(Icons.person, color: Colors.white, size: 18),
                 ),
                 const SizedBox(width: 15),
                 Expanded(
@@ -394,6 +393,7 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
 
       // 4. Floating Action Button (Add Appointment)
       floatingActionButton: FloatingActionButton(
+        heroTag: 'my_appointments_fab',
         onPressed: () {
           Navigator.push(
             context,
@@ -403,12 +403,6 @@ class _MyAppointmentsScreenState extends State<MyAppointmentsScreen> {
         },
         backgroundColor: primaryMaroon,
         child: const Icon(Icons.add, color: Colors.white, size: 30),
-      ),
-
-      // 5. Bottom Navigation Bar
-      bottomNavigationBar: AppNavBar(
-        currentIndex: 2, // Calendar Icon
-        context: context,
       ),
     );
   }

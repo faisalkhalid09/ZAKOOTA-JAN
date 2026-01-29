@@ -253,7 +253,7 @@ class _LawyerProfileSetupScreenState extends State<LawyerProfileSetupScreen> {
 
   Widget _buildBarCouncilDropdown() {
     return DropdownButtonFormField<String>(
-      value: selectedBarCouncil,
+      initialValue: selectedBarCouncil,
       decoration: InputDecoration(
         hintText: 'Select Bar Council',
         filled: true,

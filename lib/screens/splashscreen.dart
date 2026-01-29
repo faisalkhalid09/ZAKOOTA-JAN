@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'introscreen1.dart';
 import 'login_screen.dart';
-import 'client_home_screen.dart';
+import 'client_main_screen.dart';
 import 'lawyer_main_screen.dart';
+import '../services/session_management_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -63,32 +63,38 @@ class _SplashScreenState extends State<SplashScreen> {
   /// Get user role from Firestore and navigate to appropriate home screen
   Future<void> _navigateToHomeScreen(String uid) async {
     try {
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      final sessionService = SessionManagementService();
 
-      // Check if user is a lawyer
-      final lawyerDoc = await firestore.collection('lawyers').doc(uid).get();
-      if (lawyerDoc.exists) {
+      // Verify session is valid
+      final isSessionValid = await sessionService.verifySession();
+      if (!isSessionValid) {
+        // Session is invalid, logout and redirect to login
+        await sessionService.logout();
+        await _checkIntroStatus();
+        return;
+      }
+
+      // Get user role and cache it
+      final userRole = await sessionService.getUserRole(uid);
+
+      if (userRole == 'lawyer') {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (_) => const LawyerMainScreen()),
         );
         return;
-      }
-
-      // Check if user is a client
-      final clientDoc = await firestore.collection('clients').doc(uid).get();
-      if (clientDoc.exists) {
+      } else if (userRole == 'client') {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const ClientHomeScreen()),
+          MaterialPageRoute(builder: (_) => const ClientMainScreen()),
         );
         return;
       }
 
       // Role not found, logout and go to intro/login
-      await FirebaseAuth.instance.signOut();
+      await sessionService.logout();
       await _checkIntroStatus();
     } catch (e) {
       debugPrint('Error checking user role: $e');
@@ -105,40 +111,42 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF6B1E1E), // 🔹 Dark maroon shade
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // 🔹 App Logo
-            Image.asset(
-              'assets/intro.png',
-              width: size.width * 0.5,
-              fit: BoxFit.contain,
-            ),
-            const SizedBox(height: 25),
-
-            // 🔹 App Name
-            const Text(
-              'Zakoota Lawyer App',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-                letterSpacing: 1.2,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 🔹 App Logo
+              Image.asset(
+                'assets/intro.png',
+                width: size.width * 0.5,
+                fit: BoxFit.contain,
               ),
-            ),
+              const SizedBox(height: 25),
 
-            const SizedBox(height: 10),
-
-            // 🔹 Tagline
-            const Text(
-              'Your Legal Partner Anytime',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white70,
-                fontWeight: FontWeight.w500,
+              // 🔹 App Name
+              const Text(
+                'Zakoota Lawyer App',
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                  letterSpacing: 1.2,
+                ),
               ),
-            ),
-          ],
+
+              const SizedBox(height: 10),
+
+              // 🔹 Tagline
+              const Text(
+                'Your Legal Partner Anytime',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

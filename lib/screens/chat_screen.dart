@@ -50,7 +50,7 @@ class ChatScreen extends StatelessWidget {
           const SizedBox(height: 4),
           // Time Stamp (Optional, for realistic chat)
           Text(
-            '${isMe ? '10:05 AM' : '10:07 AM'}',
+            isMe ? '10:05 AM' : '10:07 AM',
             style: const TextStyle(color: Colors.grey, fontSize: 10),
           ),
         ],

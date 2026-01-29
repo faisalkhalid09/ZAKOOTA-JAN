@@ -6,7 +6,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
 import 'case_details_screen.dart'; // Assuming this screen exists
 import 'add_case_screen.dart';
-import '../widgets/app_nav_bar.dart';
 
 class MyCasesScreen extends StatefulWidget {
   const MyCasesScreen({super.key});
@@ -63,7 +62,7 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
           .collection('cases')
           .doc(docId)
           .update({'status': newStatus});
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Case moved to $newStatus')),
@@ -102,7 +101,7 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                         fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
-                
+
                 // Status Actions (Menu) & Badge
                 Row(
                   children: [
@@ -111,7 +110,8 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: statusColor.withOpacity(0.15), // Light background
+                        color:
+                            statusColor.withOpacity(0.15), // Light background
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
@@ -122,7 +122,7 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                             fontWeight: FontWeight.bold),
                       ),
                     ),
-                    
+
                     // 3-Dot Menu for Status Change
                     PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert, color: Colors.grey),
@@ -265,8 +265,10 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
       ),
       // 🆕 Floating Action Button to Add Case
       floatingActionButton: FloatingActionButton(
+        heroTag: 'my_cases_fab',
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AddCaseScreen()));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => const AddCaseScreen()));
         },
         backgroundColor: primaryMaroon,
         child: const Icon(Icons.add, color: Colors.white),
@@ -280,7 +282,10 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 boxShadow: [
-                  BoxShadow(color: Colors.grey.withOpacity(0.1), blurRadius: 3, offset: const Offset(0, 2)),
+                  BoxShadow(
+                      color: Colors.grey.withOpacity(0.1),
+                      blurRadius: 3,
+                      offset: const Offset(0, 2)),
                 ],
               ),
               child: TextField(
@@ -288,7 +293,9 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                 decoration: InputDecoration(
                   hintText: 'Search by Case ID or Name',
                   prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide.none),
                   filled: true,
                   fillColor: Colors.white,
                   contentPadding: const EdgeInsets.symmetric(vertical: 15.0),
@@ -316,15 +323,18 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection('cases')
-                  .where('uid', isEqualTo: FirebaseAuth.instance.currentUser?.uid)
+                  .where('uid',
+                      isEqualTo: FirebaseAuth.instance.currentUser?.uid)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator(color: primaryMaroon));
+                  return Center(
+                      child: CircularProgressIndicator(color: primaryMaroon));
                 }
-                
+
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No cases found. Add a new case!'));
+                  return const Center(
+                      child: Text('No cases found. Add a new case!'));
                 }
 
                 // Convert Docs to Case Objects
@@ -343,8 +353,12 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                 }).where((caseItem) {
                   // Apply Filters
                   final matchesStatus = caseItem.status == _selectedStatus;
-                  final matchesQuery = caseItem.type.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-                          caseItem.id.toLowerCase().contains(_searchQuery.toLowerCase());
+                  final matchesQuery = caseItem.type
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase()) ||
+                      caseItem.id
+                          .toLowerCase()
+                          .contains(_searchQuery.toLowerCase());
                   return matchesStatus && matchesQuery;
                 }).toList();
 
@@ -353,19 +367,16 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                 }
 
                 return ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  children: cases.map((caseItem) => _buildCaseCard(context, caseItem)).toList(),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  children: cases
+                      .map((caseItem) => _buildCaseCard(context, caseItem))
+                      .toList(),
                 );
               },
             ),
           ),
         ],
-      ),
-
-      // 4. Bottom Navigation Bar
-      bottomNavigationBar: AppNavBar(
-        currentIndex: 1, // 'Search' icon for My Cases
-        context: context,
       ),
     );
   }

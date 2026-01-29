@@ -21,7 +21,8 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   String _appointmentType = 'Virtual'; // 'Virtual', 'In-Person'
-  final TextEditingController _venueController = TextEditingController(text: 'Zoom');
+  final TextEditingController _venueController =
+      TextEditingController(text: 'Zoom');
   final TextEditingController _purposeController = TextEditingController();
 
   // Lawyer Data
@@ -53,7 +54,7 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
         _isLoadingLawyers = false;
       });
     } catch (e) {
-      if(mounted) {
+      if (mounted) {
         setState(() => _isLoadingLawyers = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error fetching lawyers: $e')),
@@ -131,14 +132,14 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
           'timestamp': FieldValue.serverTimestamp(), // For sorting
         });
 
-         if (mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Appointment booked successfully!')),
           );
           Navigator.pop(context);
         }
       } catch (e) {
-        if(mounted) {
+        if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Error booking appointment: $e')),
           );
@@ -151,7 +152,8 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Book Appointment', style: TextStyle(color: Colors.white)),
+        title: const Text('Book Appointment',
+            style: TextStyle(color: Colors.white)),
         backgroundColor: primaryMaroon,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -165,15 +167,19 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Lawyer Selection
-                    const Text('Select Lawyer', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text('Select Lawyer',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<String>(
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 15),
                       ),
                       hint: const Text('Choose a lawyer'),
-                      value: _selectedLawyerId,
+                      initialValue: _selectedLawyerId,
                       items: _lawyers.map((lawyer) {
                         return DropdownMenuItem<String>(
                           value: lawyer['id'],
@@ -183,10 +189,12 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                       onChanged: (value) {
                         setState(() {
                           _selectedLawyerId = value;
-                          _selectedLawyerName = _lawyers.firstWhere((l) => l['id'] == value)['name'];
+                          _selectedLawyerName = _lawyers
+                              .firstWhere((l) => l['id'] == value)['name'];
                         });
                       },
-                      validator: (value) => value == null ? 'Please select a lawyer' : null,
+                      validator: (value) =>
+                          value == null ? 'Please select a lawyer' : null,
                     ),
                     const SizedBox(height: 20),
 
@@ -197,26 +205,36 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Date', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              const Text('Date',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: _pickDate,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.grey),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         _selectedDate == null
                                             ? 'Select Date'
-                                            : DateFormat('MMM dd, yyyy').format(_selectedDate!),
-                                        style: TextStyle(color: _selectedDate == null ? Colors.grey : Colors.black),
+                                            : DateFormat('MMM dd, yyyy')
+                                                .format(_selectedDate!),
+                                        style: TextStyle(
+                                            color: _selectedDate == null
+                                                ? Colors.grey
+                                                : Colors.black),
                                       ),
-                                      const Icon(Icons.calendar_today, color: Colors.grey, size: 20),
+                                      const Icon(Icons.calendar_today,
+                                          color: Colors.grey, size: 20),
                                     ],
                                   ),
                                 ),
@@ -229,26 +247,35 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Time', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                              const Text('Time',
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16)),
                               const SizedBox(height: 8),
                               GestureDetector(
                                 onTap: _pickTime,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 15),
                                   decoration: BoxDecoration(
                                     border: Border.all(color: Colors.grey),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
                                   child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         _selectedTime == null
                                             ? 'Select Time'
                                             : _selectedTime!.format(context),
-                                        style: TextStyle(color: _selectedTime == null ? Colors.grey : Colors.black),
+                                        style: TextStyle(
+                                            color: _selectedTime == null
+                                                ? Colors.grey
+                                                : Colors.black),
                                       ),
-                                      const Icon(Icons.access_time, color: Colors.grey, size: 20),
+                                      const Icon(Icons.access_time,
+                                          color: Colors.grey, size: 20),
                                     ],
                                   ),
                                 ),
@@ -261,7 +288,9 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                     const SizedBox(height: 20),
 
                     // Appointment Type
-                    const Text('Appointment Type', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text('Appointment Type',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     Row(
                       children: [
                         Expanded(
@@ -299,29 +328,42 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                     const SizedBox(height: 10),
 
                     // Venue / Virtual Link
-                    const Text('Venue / Platform', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text('Venue / Platform',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _venueController,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        hintText: _appointmentType == 'Virtual' ? 'e.g., Zoom, Google Meet' : 'e.g., Office Address',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        hintText: _appointmentType == 'Virtual'
+                            ? 'e.g., Zoom, Google Meet'
+                            : 'e.g., Office Address',
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter venue/platform' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter venue/platform'
+                          : null,
                     ),
                     const SizedBox(height: 20),
 
                     // Purpose
-                    const Text('Case Details / Purpose', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    const Text('Case Details / Purpose',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16)),
                     const SizedBox(height: 8),
                     TextFormField(
                       controller: _purposeController,
                       maxLines: 3,
                       decoration: InputDecoration(
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                        hintText: 'Briefly describe your case or reason for appointment',
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        hintText:
+                            'Briefly describe your case or reason for appointment',
                       ),
-                      validator: (value) => value == null || value.isEmpty ? 'Please enter purpose' : null,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Please enter purpose'
+                          : null,
                     ),
                     const SizedBox(height: 30),
 
@@ -333,9 +375,14 @@ class _AddAppointmentScreenState extends State<AddAppointmentScreen> {
                         onPressed: _saveAppointment,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: primaryMaroon,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10)),
                         ),
-                        child: const Text('Confirm Appointment', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                        child: const Text('Confirm Appointment',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold)),
                       ),
                     ),
                   ],

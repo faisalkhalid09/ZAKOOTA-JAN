@@ -4,24 +4,26 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../utils/app_colors.dart';
-import '../widgets/app_nav_bar.dart';
+import '../services/session_management_service.dart';
 import 'payment_screen.dart';
 import 'edit_profile_screen.dart';
 import 'settings_screen.dart';
 import 'rating_feedback_screen.dart';
 import 'help_support_screen.dart'; // 💡 NEW: Linked HelpSupportScreen
+import 'login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   final Color primaryMaroon = AppColors.primaryColor;
 
-  // 🔑 Option Tile Widget (Unchanged)
+  // 🔑 Option Tile Widget (Updated with onTap support)
   Widget _buildOptionTile(
       {required BuildContext context,
       required IconData icon,
       required String title,
-      Widget? targetScreen}) {
+      Widget? targetScreen,
+      VoidCallback? onTap}) {
     return Column(
       children: [
         ListTile(
@@ -34,17 +36,18 @@ class ProfileScreen extends StatelessWidget {
           // Trailing Arrow
           trailing:
               const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-          onTap: () {
-            if (targetScreen != null) {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => targetScreen));
-            } else {
-              // TODO: Implement specific action like Logout/Help
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$title tapped')),
-              );
-            }
-          },
+          onTap: onTap ??
+              () {
+                if (targetScreen != null) {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => targetScreen));
+                } else {
+                  // TODO: Implement specific action like Logout/Help
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('$title tapped')),
+                  );
+                }
+              },
         ),
         // Divider (Horizontal line below the tile)
         Padding(
@@ -55,66 +58,136 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
+  // 🔑 Logout Handler with Session Management
+  Future<void> _handleLogout(BuildContext context) async {
+    try {
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Dialog(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 20),
+                  const Text('Logging out...'),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+
+      // Use SessionManagementService for logout
+      final sessionService = SessionManagementService();
+      final logoutSuccess = await sessionService.logout();
+
+      if (context.mounted) {
+        // Dismiss loading dialog
+        Navigator.pop(context);
+
+        if (logoutSuccess) {
+          // Navigate to LoginScreen and clear navigation stack
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const LoginScreen()),
+            (route) => false,
+          );
+        } else {
+          // Show error message
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Logout failed. Please try again.')),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        // Dismiss loading dialog if open
+        if (Navigator.canPop(context)) {
+          Navigator.pop(context);
+        }
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logout failed: $e')),
+        );
+      }
+      debugPrint('Logout error: $e');
+    }
+  }
+
   // 🛠️ Profile Header with Clickable Name/Arrow
   Widget _buildProfileHeader(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return const SizedBox();
 
     return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.collection('clients').doc(user.uid).snapshots(),
-      builder: (context, snapshot) {
-        String displayName = 'Client Name';
-        String handle = '@client';
-        String? profileImage;
+        stream: FirebaseFirestore.instance
+            .collection('clients')
+            .doc(user.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          String displayName = 'Client Name';
+          String handle = '@client';
+          String? profileImage;
 
-        if (snapshot.hasData && snapshot.data!.exists) {
-          final data = snapshot.data!.data() as Map<String, dynamic>;
-          displayName = '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'.trim();
-          if (displayName.isEmpty) displayName = 'Client Name';
-          handle = data['email'] ?? '@client';
-          profileImage = data['profileImageUrl'];
-        }
+          if (snapshot.hasData && snapshot.data!.exists) {
+            final data = snapshot.data!.data() as Map<String, dynamic>;
+            displayName =
+                '${data['firstName'] ?? ''} ${data['lastName'] ?? ''}'.trim();
+            if (displayName.isEmpty) displayName = 'Client Name';
+            handle = data['email'] ?? '@client';
+            profileImage = data['profileImageUrl'];
+          }
 
-        return Column(
-          children: [
-            CircleAvatar(
-              radius: 50,
-              backgroundImage: profileImage != null && profileImage.isNotEmpty
-                  ? NetworkImage(profileImage) as ImageProvider
-                  : const AssetImage('assets/profile_placeholder.png'),
-              backgroundColor: Colors.grey,
-            ),
-            const SizedBox(height: 10),
-            GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const EditProfileScreen()),
-                );
-              },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Column(
-                    children: [
-                      Text(displayName,
-                          style:
-                              const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                      Text(handle,
-                          style: const TextStyle(color: Colors.grey, fontSize: 14)),
-                    ],
-                  ),
-                  const SizedBox(width: 5),
-                  const Icon(Icons.arrow_forward_ios, color: Colors.black54, size: 16),
-                ],
+          return Column(
+            children: [
+              CircleAvatar(
+                radius: 50,
+                backgroundImage: profileImage != null && profileImage.isNotEmpty
+                    ? NetworkImage(profileImage) as ImageProvider
+                    : null,
+                backgroundColor: Colors.grey,
+                child: profileImage == null || profileImage.isEmpty
+                    ? const Icon(Icons.person, color: Colors.white, size: 40)
+                    : null,
               ),
-            ),
-            const SizedBox(height: 15),
-          ],
-        );
-      }
-    );
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EditProfileScreen()),
+                  );
+                },
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Column(
+                      children: [
+                        Text(displayName,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18)),
+                        Text(handle,
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 14)),
+                      ],
+                    ),
+                    const SizedBox(width: 5),
+                    const Icon(Icons.arrow_forward_ios,
+                        color: Colors.black54, size: 16),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 15),
+            ],
+          );
+        });
   }
 
   @override
@@ -207,7 +280,10 @@ class ProfileScreen extends StatelessWidget {
                       targetScreen:
                           const HelpSupportScreen()), // ✅ FUNCTIONALITY: Linked to HelpSupportScreen
                   _buildOptionTile(
-                      context: context, icon: Icons.logout, title: 'Log out'),
+                      context: context,
+                      icon: Icons.logout,
+                      title: 'Log out',
+                      onTap: () => _handleLogout(context)),
                 ],
               ),
             ),
@@ -216,8 +292,6 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
       ),
-      // Bottom Navigation Bar
-      bottomNavigationBar: AppNavBar(currentIndex: 3, context: context),
     );
   }
 }

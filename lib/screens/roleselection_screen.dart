@@ -62,12 +62,13 @@ class _RoleSelectionScreenState extends State<RoleSelectionScreen>
       targetScreen = const ClientSignUpScreen();
     }
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) => targetScreen));
+    Navigator.pushReplacement(
+        context, MaterialPageRoute(builder: (_) => targetScreen));
   }
 
   // 2. Navigation function to Login Screen
   void _navigateToLoginScreen() {
-    Navigator.push(
+    Navigator.pushReplacement(
         context, MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 

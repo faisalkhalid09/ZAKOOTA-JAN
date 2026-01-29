@@ -43,7 +43,8 @@ class CaseDetailsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Case Details', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Case Details', style: TextStyle(color: Colors.white)),
         backgroundColor: primaryMaroon,
         elevation: 0,
         leading: IconButton(
@@ -75,8 +76,8 @@ class CaseDetailsScreen extends StatelessWidget {
                 children: [
                   const CircleAvatar(
                     radius: 35,
-                    backgroundImage: AssetImage('assets/profile_placeholder.png'),
                     backgroundColor: Colors.grey,
+                    child: Icon(Icons.person, color: Colors.white, size: 28),
                   ),
                   const SizedBox(width: 20),
                   Expanded(
@@ -99,7 +100,8 @@ class CaseDetailsScreen extends StatelessWidget {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
                                 color: getStatusColor(status).withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(5),
@@ -142,9 +144,9 @@ class CaseDetailsScreen extends StatelessWidget {
             _buildDetailRow(Icons.gavel, 'Case Type', type),
             _buildDetailRow(Icons.calendar_today, 'Next Hearing', date),
             _buildDetailRow(Icons.balance, 'Court', court),
-            
+
             const SizedBox(height: 25),
-            
+
             // Description
             const Text(
               'Case Description',
@@ -160,8 +162,11 @@ class CaseDetailsScreen extends StatelessWidget {
                 border: Border.all(color: Colors.grey.shade200),
               ),
               child: Text(
-                description.isEmpty ? 'No description available for this case.' : description,
-                style: const TextStyle(fontSize: 15, color: Colors.black87, height: 1.4),
+                description.isEmpty
+                    ? 'No description available for this case.'
+                    : description,
+                style: const TextStyle(
+                    fontSize: 15, color: Colors.black87, height: 1.4),
               ),
             ),
           ],

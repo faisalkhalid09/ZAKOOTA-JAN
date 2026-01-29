@@ -1,90 +1,90 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../utils/app_colors.dart';
-import 'lawyer_home_screen.dart';
-import 'lawyer_cases_screen.dart';
-import 'lawyer_gigs_screen.dart';
-import 'lawyer_messages_screen.dart';
-import 'lawyer_profile_screen.dart';
+import 'client_home_screen.dart';
+import 'my_cases_screen.dart';
+import 'my_appointments_screen.dart';
+import 'messages_screen.dart';
+import 'profile_screen.dart';
 
-class LawyerMainScreen extends StatefulWidget {
-  const LawyerMainScreen({super.key});
+class ClientMainScreen extends StatefulWidget {
+  const ClientMainScreen({super.key});
 
   @override
-  State<LawyerMainScreen> createState() => _LawyerMainScreenState();
+  State<ClientMainScreen> createState() => _ClientMainScreenState();
 }
 
-class _LawyerMainScreenState extends State<LawyerMainScreen> {
+class _ClientMainScreenState extends State<ClientMainScreen> {
   int _currentIndex = 0;
 
   // Keep instances to preserve state
   final List<Widget> _screens = const [
-    LawyerHomeScreen(),
-    LawyerCasesScreen(),
-    LawyerGigsScreen(),
-    LawyerMessagesScreen(),
-    LawyerProfileScreen(),
+    ClientHomeScreen(),
+    MyCasesScreen(),
+    MyAppointmentsScreen(),
+    MessagesScreen(),
+    ProfileScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-        canPop: _currentIndex == 0,
-        onPopInvoked: (bool didPop) {
-          if (didPop) {
-            return;
-          }
-          // From any other tab, go back to home tab (index 0)
-          setState(() {
-            _currentIndex = 0;
-          });
-        },
-        child: Scaffold(
-          backgroundColor: AppColors.backgroundColor,
-          body: IndexedStack(
-            index: _currentIndex,
-            children: _screens,
-          ),
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              border: Border(
-                top: BorderSide(
-                  color: AppColors.gray200,
-                  width: 1,
-                ),
+      canPop: _currentIndex == 0,
+      onPopInvoked: (bool didPop) {
+        if (didPop) {
+          return;
+        }
+        // From any other tab, go back to home tab (index 0)
+        setState(() {
+          _currentIndex = 0;
+        });
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        body: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
+        bottomNavigationBar: Container(
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            border: Border(
+              top: BorderSide(
+                color: AppColors.gray200,
+                width: 1,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.gray400.withOpacity(0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, -3),
-                ),
-              ],
             ),
-            child: SafeArea(
-              top: false,
-              child: SizedBox(
-                height: 65,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
-                    _buildNavItem(
-                        1, Icons.gavel_outlined, Icons.gavel, 'Cases'),
-                    _buildNavItem(2, Icons.add_circle_outline, Icons.add_circle,
-                        'Create'),
-                    _buildNavItem(3, Icons.chat_bubble_outline,
-                        Icons.chat_bubble, 'Chats'),
-                    _buildNavItem(
-                        4, Icons.person_outline, Icons.person, 'Profile'),
-                  ],
-                ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.gray400.withOpacity(0.15),
+                blurRadius: 12,
+                offset: const Offset(0, -3),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: SizedBox(
+              height: 65,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  _buildNavItem(0, Icons.home_outlined, Icons.home, 'Home'),
+                  _buildNavItem(
+                      1, Icons.balance_outlined, Icons.balance, 'Cases'),
+                  _buildNavItem(2, Icons.calendar_today_outlined,
+                      Icons.calendar_today, 'Schedule'),
+                  _buildNavItem(3, Icons.chat_bubble_outline, Icons.chat_bubble,
+                      'Messages'),
+                  _buildNavItem(
+                      4, Icons.person_outline, Icons.person, 'Profile'),
+                ],
               ),
             ),
           ),
         ),
+      ),
     );
   }
 

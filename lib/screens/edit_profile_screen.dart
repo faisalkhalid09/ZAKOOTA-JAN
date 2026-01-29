@@ -17,22 +17,23 @@ class EditProfileScreen extends StatefulWidget {
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
   final Color primaryMaroon = AppColors.primaryColor;
-  
+
   // Controllers
   final TextEditingController _firstNameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController(); // Added Last Name
+  final TextEditingController _lastNameController =
+      TextEditingController(); // Added Last Name
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
-  
+
   String? _selectedGender;
   final List<String> _genders = ['Male', 'Female', 'Other'];
-  
+
   // Image Picking
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
   String? _currentPhotoUrl;
-  
+
   bool _isLoading = false;
   final User? currentUser = FirebaseAuth.instance.currentUser;
 
@@ -54,11 +55,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _loadUserData() async {
     if (currentUser == null) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
-      final doc = await FirebaseFirestore.instance.collection('clients').doc(currentUser!.uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('clients')
+          .doc(currentUser!.uid)
+          .get();
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>;
         _firstNameController.text = data['firstName'] ?? '';
@@ -68,14 +72,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         _addressController.text = data['address'] ?? '';
         _selectedGender = data['gender'];
         _currentPhotoUrl = data['profileImageUrl'];
-        
+
         // Ensure gender is valid
         if (_selectedGender != null && !_genders.contains(_selectedGender)) {
           _selectedGender = null;
         }
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error loading profile: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -83,14 +88,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _pickImage() async {
     try {
-      final XFile? pickedFile = await _picker.pickImage(source: ImageSource.gallery, maxWidth: 800);
+      final XFile? pickedFile =
+          await _picker.pickImage(source: ImageSource.gallery, maxWidth: 800);
       if (pickedFile != null) {
         setState(() {
           _imageFile = File(pickedFile.path);
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
   }
 
@@ -98,7 +105,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if (_imageFile == null) return _currentPhotoUrl;
 
     try {
-      final storageRef = FirebaseStorage.instance.ref().child('profile_images/$uid.jpg');
+      final storageRef =
+          FirebaseStorage.instance.ref().child('profile_images/$uid.jpg');
       await storageRef.putFile(_imageFile!);
       return await storageRef.getDownloadURL();
     } catch (e) {
@@ -112,7 +120,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   Future<void> _saveProfile() async {
     if (currentUser == null) return;
-    
+
     setState(() => _isLoading = true);
 
     try {
@@ -120,7 +128,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       String? photoUrl = await _uploadImage(currentUser!.uid);
 
       // 2. Update Firestore
-      await FirebaseFirestore.instance.collection('clients').doc(currentUser!.uid).update({
+      await FirebaseFirestore.instance
+          .collection('clients')
+          .doc(currentUser!.uid)
+          .update({
         'firstName': _firstNameController.text.trim(),
         'lastName': _lastNameController.text.trim(),
         'gender': _selectedGender,
@@ -131,17 +142,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       });
 
       // 3. Update Firebase Auth Profile
-      await currentUser!.updateDisplayName('${_firstNameController.text.trim()} ${_lastNameController.text.trim()}');
+      await currentUser!.updateDisplayName(
+          '${_firstNameController.text.trim()} ${_lastNameController.text.trim()}');
       if (photoUrl != null) {
         await currentUser!.updatePhotoURL(photoUrl);
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Profile Updated Successfully!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Profile Updated Successfully!')));
         Navigator.pop(context);
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to update profile: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to update profile: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -159,20 +173,28 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4.0, bottom: 4.0),
-          child: Text(label, style: const TextStyle(fontSize: 14, color: Colors.black87)),
+          child: Text(label,
+              style: const TextStyle(fontSize: 14, color: Colors.black87)),
         ),
         SizedBox(
-          height: 48, 
+          height: 48,
           child: TextFormField(
             controller: controller,
             keyboardType: keyboardType,
             readOnly: readOnly,
             decoration: InputDecoration(
               hintText: hintText,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade400)),
-              enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade400)),
-              focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryMaroon, width: 1.5)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade400)),
+              enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: Colors.grey.shade400)),
+              focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide(color: primaryMaroon, width: 1.5)),
               filled: readOnly,
               fillColor: readOnly ? Colors.grey.shade200 : null,
             ),
@@ -186,13 +208,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isLoading && _firstNameController.text.isEmpty) {
-       return Scaffold(body: Center(child: CircularProgressIndicator(color: primaryMaroon)));
+      return Scaffold(
+          body: Center(child: CircularProgressIndicator(color: primaryMaroon)));
     }
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: const Text('Edit Profile', style: TextStyle(color: Colors.white)),
+        title:
+            const Text('Edit Profile', style: TextStyle(color: Colors.white)),
         backgroundColor: primaryMaroon,
         elevation: 0,
         leading: IconButton(
@@ -212,10 +236,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   radius: 50,
                   backgroundImage: _imageFile != null
                       ? FileImage(_imageFile!)
-                      : (_currentPhotoUrl != null && _currentPhotoUrl!.isNotEmpty
+                      : (_currentPhotoUrl != null &&
+                              _currentPhotoUrl!.isNotEmpty
                           ? NetworkImage(_currentPhotoUrl!)
-                          : const AssetImage('assets/profile_placeholder.png')) as ImageProvider,
+                          : null) as ImageProvider?,
                   backgroundColor: Colors.grey,
+                  child: (_imageFile == null &&
+                          (_currentPhotoUrl == null ||
+                              _currentPhotoUrl!.isEmpty))
+                      ? const Icon(Icons.person, color: Colors.white, size: 40)
+                      : null,
                 ),
                 Positioned(
                   bottom: 0,
@@ -238,7 +268,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 8),
             TextButton(
               onPressed: _pickImage,
-              child: Text('Change Photo', style: TextStyle(color: primaryMaroon, fontSize: 14)),
+              child: Text('Change Photo',
+                  style: TextStyle(color: primaryMaroon, fontSize: 14)),
             ),
             const SizedBox(height: 20),
 
@@ -247,70 +278,97 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _buildTextField(label: 'First Name', hintText: 'First Name', controller: _firstNameController),
+                  child: _buildTextField(
+                      label: 'First Name',
+                      hintText: 'First Name',
+                      controller: _firstNameController),
                 ),
                 const SizedBox(width: 10),
-                 Expanded(
-                  child: _buildTextField(label: 'Last Name', hintText: 'Last Name', controller: _lastNameController),
+                Expanded(
+                  child: _buildTextField(
+                      label: 'Last Name',
+                      hintText: 'Last Name',
+                      controller: _lastNameController),
                 ),
               ],
             ),
 
             // Gender Dropdown
-             Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0, bottom: 4.0),
-                    child: Text('Gender', style: TextStyle(fontSize: 14, color: Colors.black87)),
-                  ),
-                  SizedBox(
-                    height: 48,
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedGender,
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 10),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade400)),
-                      ),
-                      items: _genders.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value, style: const TextStyle(fontSize: 14)),
-                        );
-                      }).toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          _selectedGender = newValue;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-                ],
-              ),
-            
-            // Email (Read Only recommended)
-            _buildTextField(label: 'Email Address', hintText: 'Enter Address', controller: _emailController, keyboardType: TextInputType.emailAddress, readOnly: true),
-
-            // Phone Number
-            _buildTextField(label: 'Phone Number', hintText: '+92', controller: _phoneController, keyboardType: TextInputType.phone),
-
-            // Address
-             Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
                   padding: EdgeInsets.only(left: 4.0, bottom: 4.0),
-                  child: Text('Address', style: TextStyle(fontSize: 14, color: Colors.black87)),
+                  child: Text('Gender',
+                      style: TextStyle(fontSize: 14, color: Colors.black87)),
+                ),
+                SizedBox(
+                  height: 48,
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedGender,
+                    decoration: InputDecoration(
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 10),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey.shade400)),
+                    ),
+                    items: _genders.map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child:
+                            Text(value, style: const TextStyle(fontSize: 14)),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _selectedGender = newValue;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(height: 15),
+              ],
+            ),
+
+            // Email (Read Only recommended)
+            _buildTextField(
+                label: 'Email Address',
+                hintText: 'Enter Address',
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                readOnly: true),
+
+            // Phone Number
+            _buildTextField(
+                label: 'Phone Number',
+                hintText: '+92',
+                controller: _phoneController,
+                keyboardType: TextInputType.phone),
+
+            // Address
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(left: 4.0, bottom: 4.0),
+                  child: Text('Address',
+                      style: TextStyle(fontSize: 14, color: Colors.black87)),
                 ),
                 TextFormField(
                   controller: _addressController,
                   maxLines: 4,
                   decoration: InputDecoration(
                     hintText: 'Address',
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: Colors.grey.shade400)),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide(color: primaryMaroon, width: 1.5)),
+                    contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 10),
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide: BorderSide(color: Colors.grey.shade400)),
+                    focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                        borderSide:
+                            BorderSide(color: primaryMaroon, width: 1.5)),
                   ),
                 ),
                 const SizedBox(height: 30),
@@ -328,11 +386,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     onPressed: _isLoading ? null : _saveProfile,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: primaryMaroon,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: _isLoading 
-                      ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
-                      : const Text('Save', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 2))
+                        : const Text('Save',
+                            style:
+                                TextStyle(color: Colors.white, fontSize: 16)),
                   ),
                 ),
                 SizedBox(
@@ -341,10 +406,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: ElevatedButton(
                     onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF670000), 
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      backgroundColor: const Color(0xFF670000),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('Cancel', style: TextStyle(color: Colors.white, fontSize: 16)),
+                    child: const Text('Cancel',
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
                   ),
                 ),
               ],
