@@ -24,37 +24,44 @@ class ProfileScreen extends StatelessWidget {
       required String title,
       Widget? targetScreen,
       VoidCallback? onTap}) {
-    return Column(
-      children: [
-        ListTile(
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          // Icon
-          leading: Icon(icon, color: primaryMaroon, size: 24),
-          // Title
-          title: Text(title, style: const TextStyle(fontSize: 16)),
-          // Trailing Arrow
-          trailing:
-              const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 16),
-          onTap: onTap ??
-              () {
-                if (targetScreen != null) {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => targetScreen));
-                } else {
-                  // TODO: Implement specific action like Logout/Help
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('$title tapped')),
-                  );
-                }
-              },
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade200),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: AppColors.maroonVeryLight,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, color: AppColors.maroonPrimary, size: 20),
         ),
-        // Divider (Horizontal line below the tile)
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-          child: Divider(height: 1, color: Colors.grey.shade300),
+        title: Text(
+          title, 
+          style: const TextStyle(
+            fontSize: 15, 
+            fontWeight: FontWeight.w500,
+            color: Colors.black, // Strict Black
+          )
         ),
-      ],
+        trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey, size: 14),
+        onTap: onTap ??
+            () {
+              if (targetScreen != null) {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => targetScreen));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$title tapped')),
+                );
+              }
+            },
+      ),
     );
   }
 
@@ -236,18 +243,6 @@ class ProfileScreen extends StatelessWidget {
             // Profile Options List
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.only(top: 10),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.1),
-                    blurRadius: 5,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
               child: Column(
                 children: [
                   _buildOptionTile(

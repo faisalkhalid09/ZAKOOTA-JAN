@@ -42,14 +42,15 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
   String _searchQuery = '';
 
   // 🔑 Status Color Getter
+  // 🔑 Status Color Getter
   Color _getStatusColor(String status) {
     switch (status) {
       case 'Ongoing':
-        return const Color(0xFF4CAF50); // Green shade
+        return AppColors.maroonPrimary; // Maroon for Active
       case 'Closed':
-        return const Color(0xFFF44336); // Red shade
+        return Colors.black; // Black for Closed
       case 'Pending':
-        return const Color(0xFFFFC107); // Yellow shade
+        return Colors.grey.shade600; // Grey for Pending
       default:
         return Colors.grey;
     }
@@ -83,8 +84,12 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade200), // Subtle border
+      ),
+      elevation: 0, // Flat design
+      color: Colors.white,
       child: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Column(
@@ -195,15 +200,15 @@ class _MyCasesScreenState extends State<MyCasesScreen> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryMaroon, // Maroon background
-                    elevation: 2,
+                    backgroundColor: AppColors.maroonPrimary, // Maroon background
+                    elevation: 0, // Flat design
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
                   child: const Text(
                     'View Details',
-                    style: TextStyle(color: Colors.white, fontSize: 15),
+                    style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
